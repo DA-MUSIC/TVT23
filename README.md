@@ -1,6 +1,10 @@
 # DA-MUSIC: DATA-DRIVEN DOA ESTIMATION VIA DEEP AUGMENTED MUSIC ALGORITHM
 
-More information will follow shortly.
+[DA-MUSIC: Data-Driven DoA Estimation via Deep Augmented MUSIC](https://ieeexplore.ieee.org/document/9746637)
+
+## Abstract
+
+Direction of arrival (DoA) estimation of multiple signals is pivotal in sensor array signal processing. A popular multi-signal DoA estimation method is the multiple signal classification (MUSIC) algorithm, which enables high-performance super-resolution DoA recovery while being highly applicable in practice. MUSIC is a model-based algorithm, relying on an accurate mathematical description of the relationship between the signals and the measurements and assumptions on the signals themselves (non-coherent, narrowband sources). As such, it is sensitive to model imperfections. In this work we propose to overcome these limitations of MUSIC by augmenting the algorithm with specifically designed neural architectures. Our proposed deep augmented MUSIC (DA-MUSIC) algorithm is thus a hybrid model-based/data-driven DoA estimator, which leverages data to improve performance and robustness while preserving the interpretable flow of the classic method. DA-MUSIC is shown to learn to overcome limitations of the purely model-based method, such as its inability to successfully localize coherent sources as well as estimate the number of coherent signal sources present. We further demonstrate the superior resolution of the DA-MUSIC algorithm in synthetic narrowband and broadband scenarios as well as with real-world data of DoA estimation from seismic signals.
 
 
 ## Overview
