@@ -44,6 +44,74 @@ r = angles.shape[1]   # resolution (i.e. angle grid size)
 #***********#
 #   model   #
 #***********#
+def literature_CNN():
+    kern_size1 = 3
+    kern_size2 = 2
+
+    x = Input((m, m, 3))
+
+    y = Conv2D(256, kernel_size=(kern_size1, kern_size1), activation=None, name="Conv2D_1",
+               padding="valid", strides=(2, 2))(x)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Conv2D(256, kernel_size=(kern_size2, kern_size2), activation=None, name="Conv2D_2", padding="valid")(y)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Conv2D(256, kernel_size=(kern_size2, kern_size2), activation=None, name="Conv2D_3", padding="valid")(y)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Conv2D(256, kernel_size=(kern_size2, kern_size2), activation=None, name="Conv2D_4", padding="valid")(y)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Flatten()(y)
+    y = Dense(4096, activation="relu", name="Dense_Layer1")(y)
+    y = Dropout(0.3, name="Dropout1")(y)
+    y = Dense(2048, activation="relu", name="Dense_Layer2")(y)
+    y = Dropout(0.3, name="Dropout2")(y)
+    y = Dense(1024, activation="relu", name="Dense_Layer3")(y)
+    y = Dropout(0.3, name="Dropout3")(y)
+    y = Dense(r, activation="sigmoid", kernel_initializer=glorot_normal(seed=None), name="Classif_Layer")(y)
+
+    return x, y
+
+
+#***********#
+#   model   #
+#***********#
+def literature_CNN():
+    kern_size1 = 3
+    kern_size2 = 2
+
+    x = Input((m, m, 3))
+
+    y = Conv2D(256, kernel_size=(kern_size1, kern_size1), activation=None, name="Conv2D_1",
+               padding="valid", strides=(1, 1))(x)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Conv2D(256, kernel_size=(kern_size2, kern_size2), activation=None, name="Conv2D_2", padding="valid")(y)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Conv2D(256, kernel_size=(kern_size2, kern_size2), activation=None, name="Conv2D_3", padding="valid")(y)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Conv2D(256, kernel_size=(kern_size2, kern_size2), activation=None, name="Conv2D_4", padding="valid")(y)
+    y = BatchNormalization(trainable=True)(y)
+    y = ReLU()(y)
+    y = Flatten()(y)
+    y = Dense(4096, activation="relu", name="Dense_Layer1")(y)
+    y = Dropout(0.3, name="Dropout1")(y)
+    y = Dense(2048, activation="relu", name="Dense_Layer2")(y)
+    y = Dropout(0.3, name="Dropout2")(y)
+    y = Dense(1024, activation="relu", name="Dense_Layer3")(y)
+    y = Dropout(0.3, name="Dropout3")(y)
+    y = Dense(r, activation="sigmoid", kernel_initializer=glorot_normal(seed=None), name="Classif_Layer")(y)
+
+    return x, y
+
+
+#***********#
+#   model   #
+#***********#
 def deep_aug_MUSIC():
     x = Input((2 * m, snapshots))
 

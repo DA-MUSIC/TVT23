@@ -382,7 +382,7 @@ def cat_est_d(trueDoA, predDoA):
 def mape(predDoA, trueDoA):
     """
         Calculates the mean absolute periodic error (MAE with periodicity).
-        !!! only used for one SINGLE source - no periodicity...
+        !!! only used for one SINGLE source - no permutation...
 
         @param predDoA -- The estimated DoA angles in radians (same length as true DoA).
         @param trueDoA -- The ground truth DoA angles in radians.

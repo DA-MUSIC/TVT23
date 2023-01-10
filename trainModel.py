@@ -152,18 +152,22 @@ for i in range(num_samples):
 #****************************#
 #   build perfect spectrum   #
 #****************************#
-# y = ((dataY + np.pi/2) / np.pi * r).astype(int)
+# ds = np.array([len(dataY[i][dataY[i] <= np.pi / 2]) for i in range(num_samples)])
+y = ((dataY + np.pi/2) / np.pi * r).astype(int)
 trainY = np.zeros((num_samples, r))
-# for i in tqdm(range(num_samples)):
+for i in tqdm(range(num_samples)):
+    # d = len(y[i][y[i] <= np.pi / 2]) 
+    # d = ds[i]
+
     # dirac impulses
     # trainY[i] = (10 ** (snr / 10)) * signal.unit_impulse(r, y[i]) + 1
-    # trainY[i] = signal.unit_impulse(r, y[i])
+    trainY[i] = signal.unit_impulse(r, y[i, :d])
 
     # # laplace distributions
     # for j in range(d):
     #    trainY[i] +=  100 * laplace.pdf(np.linspace(0, r, r), loc=y[i, j], scale=1)
 
-    # classic MUSIC spectrum
+    # # classic MUSIC spectrum
     # trainY[i] = classicMUSIC(trainX[i, :m] + 1j * trainX[i, m:], array, angles, d)[1]
 
 # trainY = MinMaxScaler().fit_transform(trainY)
@@ -281,6 +285,7 @@ if __name__ == "__main__":
 
     E2E = True   # set to true when evaluating an end2end model
     SPEC = False   # set to true when training with Cov and Spec
+    CLASS = False  # set to true when training with Cov and Class
     FULL = True   # set true when outputting dmax DoA angles
     SEP = False   # set true when outputting DoA angles separated
     EST = False   # set true when training separate d estimator
@@ -307,8 +312,13 @@ if __name__ == "__main__":
     x, y = deep_aug_MUSIC()
     model = Model(x, y)
 
+    if CLASS:
+        LOSS = 'binary_crossentropy'
+        trainX = np.swapaxes(np.swapaxes(trainKx, 1, -1), 1, 2)
+        testKx = np.swapaxes(np.swapaxes(testKx, 1, -1), 1, 2)
+
     if TRAIN:
-        if E2E: trainY, testY, LOSS = trainDoA, testDoA, mape
+        if E2E: trainY, testY, LOSS = trainDoA, testDoA, perm_rmse
         if SPEC: trainX, LOSS = trainKx, 'mse'
         if EST: trainY, testY, LOSS = \
             [trainDoA, tf.math.argmax(trainDoA, axis=1) - 2],\
@@ -351,10 +361,11 @@ if __name__ == "__main__":
                 results = model.evaluate((testX, testA), testY, batch_size=batch_size)
 
         else:
-            history = model.fit(x=trainX, y=trainY, batch_size=batch_size, epochs=1,
+            history = model.fit(x=trainX, y=trainY, batch_size=batch_size, epochs=50,
                                 validation_split=0.2, callbacks=[checkpoint], verbose=1)
 
-            results = model.evaluate(testX, testY, batch_size=batch_size)
+            if CLASS: results = model.evaluate(testKx, testY, batch_size=batch_size)
+            else: results = model.evaluate(testX, testY, batch_size=batch_size)
 
         print("TEST LOSS:", results)
 
@@ -415,15 +426,21 @@ if __name__ == "__main__":
                 # DoA = model.predict(X)[0]
                 DoA = model.predict((X, A))[0]
 
-        # deepMUSIC #
-        #***********#
-        elif SPEC:
+        # deepMUSIC or CNN #
+        #******************#
+        elif SPEC or CLASS:
             X = np.repeat(testKx[i][np.newaxis, :, :], 1, axis=0)
             spectrum = np.concatenate(model.predict(X), axis=None)
             DoA, _ = signal.find_peaks(spectrum, distance=10)
 
-            # only keep d largest peaks
-            DoA = DoA[np.argsort(spectrum[DoA])[-d:]]
+            if False: # (set True for known num. sources)
+                # only keep d largest peaks
+                DoA = DoA[np.argsort(spectrum[DoA])[-d:]]
+            else:
+                # or give all peak locations in descending order
+                p_i = 0.05
+                DoA = DoA[spectrum[DoA] > p_i]
+                DoA = DoA[np.argsort(- spectrum[DoA])]
 
             # transform to radians
             DoA = DoA * phi_span / r + phi_min
